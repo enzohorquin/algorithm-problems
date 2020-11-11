@@ -41,9 +41,12 @@ class LinkedList {
     insertAtIndex(data, i) {
         let node = this.head;
         if (!this.head || i === 0) this.insertAtFirst(data);
-        else
+        else {
             this.insertRecursiveAtIndex(node, data, i, 0);
-        this.#size = this.#size + 1;
+            this.#size = this.#size + 1;
+        }
+
+
     }
 
 
@@ -77,25 +80,28 @@ class LinkedList {
     deleteAtIndex(i) {
         if (i === 0) this.deleteFirst();
         else if (i === this.#size - 1) this.deleteLast();
-        else this.deleteAtIndexRecursive(i, this.head, 0);
-        this.#size = this.#size - 1;
+        else {
+            this.deleteAtIndexRecursive(i, this.head, 0);
+            this.#size = this.#size - 1;
+        }
+
     }
 
     deleteAtIndexRecursive(index, pointer, counter) {
         if (index - 1 === counter) {
             pointer.next = pointer.next.next;
-        } else this.deleteAtIndexRecursive(index, pointer, counter + 1);
+        } else this.deleteAtIndexRecursive(index, pointer.next, counter + 1);
     }
 
     getRecursive(pointer, i, counter) {
         if (i === counter)
-            return pointer;
+            return pointer.data;
         else if (pointer.next !== null)
             return this.getRecursive(pointer.next, i, counter + 1);
     }
 
     get(i) {
-        if (i < this.#size - 1)
+        if (i <= this.#size - 1)
             return this.getRecursive(this.head, i, 0);
         else return null; //returns null in case that i > this.#size 
     }
@@ -183,7 +189,94 @@ function sumLists(firstList, secondList, reverse) {
     return resultList;
 }
 const result = sumLists(newList.head, newList.head, true);
-print(result.head);
+/* print(result.head); */
 
 
 /* Palindrome: Implement a function to check if a linked list is a palindrome.  */
+
+
+/* 
+3.6 Animal Shelter: An animal shelter, which holds only dogs and cats, operates on a strictly"first in, first
+out" basis. People must adopt either the "oldest" (based on arrival time) of all animals at the shelter,
+or they can select whether they would prefer a dog or a cat (and will receive the oldest animal of
+that type). They cannot select which specific animal they would like. Create the data structures to
+maintain this system and implement operations such as enqueue, dequeueAny, dequeueDog,
+and dequeueCat. You may use the built-in Linked List data structure.
+*/
+
+class Animal {
+    #type;
+    #name;
+    constructor(type, name) {
+        this.#type = type;
+        this.#name = name;
+    }
+    getType() {
+        return this.#type;
+    }
+    getName() {
+        return this.#name;
+    }
+};
+
+class AnimalShelter {
+    #list;
+
+    constructor() {
+        this.#list = new LinkedList();
+    }
+    enqueue(animal) {
+        this.#list.insertAtFirst(animal);
+    }
+    dequeueAny() {
+        const animal = this.#list.get(this.#list.getSize() - 1);
+        this.#list.deleteLast();
+        return animal;
+    }
+    dequeueDog() {
+        return this.dequeueByType('dog');
+    }
+    dequeueCat() {
+        return this.dequeueByType('cat');
+    }
+    dequeueByType(type) {
+        let i = this.#list.getSize() - 1;
+        let animal = this.#list.get(i);
+
+        while (i >= 0 && animal && animal.getType() !== type) {
+            i = i - 1;
+            animal = this.#list.get(i);
+        }
+
+        if (animal && animal.getType() === type) {
+            this.#list.deleteAtIndex(i);
+            return animal;
+        } else return undefined;
+    }
+    print() {
+        print(this.#list.head);
+    }
+
+}
+
+const pelusa = new Animal('dog', 'Pelusa');
+const ricky = new Animal('dog', 'Ricky');
+const tigre = new Animal('cat', 'Tigre');
+const luna = new Animal('cat', 'Luna');
+const thor = new Animal('cat', 'Thor');
+
+const animalShelter = new AnimalShelter();
+
+animalShelter.enqueue(pelusa);
+animalShelter.enqueue(ricky);
+animalShelter.enqueue(tigre);
+animalShelter.enqueue(luna);
+animalShelter.enqueue(thor);
+
+console.log(animalShelter.dequeueCat().getName()); //Tigre
+console.log(animalShelter.dequeueCat().getName()); //Luna
+console.log(animalShelter.dequeueDog().getName()); //Pelusa
+
+animalShelter.print();
+console.log(animalShelter.dequeueAny().getName()); //Ricky
+
